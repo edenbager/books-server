@@ -39,3 +39,17 @@ Validation errors return `409` with `{"errorMessage": "..."}`:
 - price of 0 or less
 
 Invalid JSON or missing fields return `400`.
+
+### Reading, updating and deleting a book
+
+| Method | Path | Success | Errors |
+|---|---|---|---|
+| GET | `/book?id=1` | `200`, the book object | `404` unknown id, `400` bad id |
+| PUT | `/book?id=1&price=60` | `200`, the **old** price | `404` unknown id, `409` price ≤ 0, `400` bad params |
+| DELETE | `/book?id=1` | `200`, number of books left | `404` unknown id, `400` bad id |
+
+Example response of `GET /book?id=1`:
+
+```json
+{"result":{"id":1,"title":"Dune","author":"Frank Herbert","price":50,"year":1965,"genres":["sci-fi"]}}
+```
