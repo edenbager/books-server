@@ -1,6 +1,6 @@
 # books-server
 
-A REST server for managing a book collection, written in Java 17 with the built-in `HttpServer` and Gson. Books are stored in memory, every request is logged with a request ID, and the log level can be changed at runtime. Built for the Kaplat course.
+A REST API for managing a book collection, built in Java without a web framework. It supports full CRUD, filtering and request logging, and runs in Docker. Built for my Kaplat course.
 
 **Stack:** Java 17 · `com.sun.net.httpserver` · Gson · Docker
 
@@ -19,12 +19,13 @@ curl localhost:8574/books/health
 
 ## Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| GET | `/books/health` | Health check, returns `OK` |
-| GET | `/books/total` | Number of books, as `{"result": n}` |
-| GET | `/books` | List of books, as `{"result": [...]}` |
-| POST | `/book` | Create a book, returns `{"result": id}` |
+| Method | Path             | Description                            |
+|        |                  |                                        |
+| GET    | `/books/health`  | Health check, returns `OK`             |
+| GET    | `/books/total`   | Number of books, as `{"result": n}`    |
+| GET    | `/books`         | List of books, as `{"result": [...]}`  |
+| POST   | `/book`          | Create a book, returns `{"result": id}`|
+
 
 ### Creating a book
 
