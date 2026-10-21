@@ -30,7 +30,7 @@ curl localhost:8574/books/health
 
 ```bash
 curl -X POST localhost:8574/book -H "Content-Type: application/json" \
-  -d '{"title":"Dune","author":"Frank Herbert","year":1965,"price":50,"genres":["sci-fi"]}'
+  -d '{"title":"Dune","author":"Frank Herbert","year":1965,"price":50,"genres":["SCI_FI"]}'
 ```
 
 Validation errors return `409` with `{"errorMessage": "..."}`:
@@ -51,7 +51,7 @@ Invalid JSON or missing fields return `400`.
 Example response of `GET /book?id=1`:
 
 ```json
-{"result":{"id":1,"title":"Dune","author":"Frank Herbert","price":50,"year":1965,"genres":["sci-fi"]}}
+{"result":{"id":1,"title":"Dune","author":"Frank Herbert","price":50,"year":1965,"genres":["SCI_FI"]}}
 ```
 
 ## Filtering
@@ -63,7 +63,7 @@ Example response of `GET /book?id=1`:
 | `author` | exact match, case-insensitive |
 | `price-bigger-than` / `price-less-than` | inclusive bounds, whole numbers |
 | `year-bigger-than` / `year-less-than` | inclusive bounds, whole numbers |
-| `genres` | comma-separated, matches books having any of them; only genres from the server's built-in list are accepted |
+| `genres` | comma-separated, matches books having any of them; only `SCI_FI`, `NOVEL`, `HISTORY`, `MANGA`, `ROMANCE` and `PROFESSIONAL` are accepted |
 
 ```bash
 curl "localhost:8574/books?price-bigger-than=50&author=frank%20herbert"
@@ -79,3 +79,10 @@ Two loggers, `request-logger` and `books-logger`, with levels `ERROR`, `INFO` an
 curl "localhost:8574/logs/level?logger-name=books-logger"
 curl -X PUT "localhost:8574/logs/level?logger-name=books-logger&logger-level=DEBUG"
 ```
+
+## What I'd improve
+
+- **Validate genres on create.** `POST /book` accepts any genre string, but the genre filter only accepts a fixed list, so a book created with an unknown genre can never be found by that filter.
+- **Add automated tests.** I verified behavior by hand with curl. Unit tests for validation and filtering, plus endpoint tests, would catch regressions.
+- **Persist the data.** Books live in memory and disappear on restart.
+- **Split the single file.** All 565 lines are in one class. Separating handlers, filtering and logging would make it easier to read and test.
