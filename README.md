@@ -19,13 +19,16 @@ curl localhost:8574/books/health
 
 ## Endpoints
 
-| Method | Path             | Description                            |
-|        |                  |                                        |
-| GET    | `/books/health`  | Health check, returns `OK`             |
-| GET    | `/books/total`   | Number of books, as `{"result": n}`    |
-| GET    | `/books`         | List of books, as `{"result": [...]}`  |
-| POST   | `/book`          | Create a book, returns `{"result": id}`|
-
+| Method | Path | Description |
+|---|---|---|
+| GET | `/books/health` | Health check, returns `OK` |
+| GET | `/books/total` | Number of books, as `{"result": n}` |
+| GET | `/books` | List of books, as `{"result": [...]}` |
+| POST | `/book` | Create a book, returns `{"result": id}` |
+| GET | `/book` | Get one book by id |
+| PUT | `/book` | Update a book's price |
+| DELETE | `/book` | Delete a book |
+| GET / PUT | `/logs/level` | Read or change a logger's level |
 
 ### Creating a book
 
