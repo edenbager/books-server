@@ -16,3 +16,26 @@ Check that it's up:
 ```bash
 curl localhost:8574/books/health
 ```
+
+## Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/books/health` | Health check, returns `OK` |
+| GET | `/books/total` | Number of books, as `{"result": n}` |
+| GET | `/books` | List of books, as `{"result": [...]}` |
+| POST | `/book` | Create a book, returns `{"result": id}` |
+
+### Creating a book
+
+```bash
+curl -X POST localhost:8574/book -H "Content-Type: application/json" \
+  -d '{"title":"Dune","author":"Frank Herbert","year":1965,"price":50,"genres":["sci-fi"]}'
+```
+
+Validation errors return `409` with `{"errorMessage": "..."}`:
+- a book with the same title already exists (case-insensitive)
+- year outside 1940-2100
+- price of 0 or less
+
+Invalid JSON or missing fields return `400`.
