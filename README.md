@@ -53,3 +53,29 @@ Example response of `GET /book?id=1`:
 ```json
 {"result":{"id":1,"title":"Dune","author":"Frank Herbert","price":50,"year":1965,"genres":["sci-fi"]}}
 ```
+
+## Filtering
+
+`GET /books` and `GET /books/total` accept the same optional filters, combined with AND. `/books` returns the matching books sorted by title; `/books/total` returns only the count.
+
+| Parameter | Meaning |
+|---|---|
+| `author` | exact match, case-insensitive |
+| `price-bigger-than` / `price-less-than` | inclusive bounds, whole numbers |
+| `year-bigger-than` / `year-less-than` | inclusive bounds, whole numbers |
+| `genres` | comma-separated, matches books having any of them; only genres from the server's built-in list are accepted |
+
+```bash
+curl "localhost:8574/books?price-bigger-than=50&author=frank%20herbert"
+```
+
+Invalid numbers or unknown genres return `400`.
+
+## Logging
+
+Two loggers, `request-logger` and `books-logger`, with levels `ERROR`, `INFO` and `DEBUG`. Book events are written to `logs/books.log`. The level can be changed while the server is running:
+
+```bash
+curl "localhost:8574/logs/level?logger-name=books-logger"
+curl -X PUT "localhost:8574/logs/level?logger-name=books-logger&logger-level=DEBUG"
+```
