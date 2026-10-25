@@ -121,8 +121,16 @@ public class BooksServer {
 
     // ======================== MAIN ========================
 
+    static final int DEFAULT_PORT = 8574;
+
     public static void main(String[] args) throws Exception {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8574), 0);
+        HttpServer server = start(DEFAULT_PORT);
+        System.out.println("Server started on port " + server.getAddress().getPort());
+    }
+
+    /** Starts the server on the given port (0 picks a free port, which the tests use). */
+    static HttpServer start(int port) throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/books/health", BooksServer::handleHealth);
         server.createContext("/books/total",  BooksServer::handleBooksTotal);
         server.createContext("/books",        BooksServer::handleBooksGet);
@@ -130,7 +138,19 @@ public class BooksServer {
         server.createContext("/logs/level",   BooksServer::handleLogsLevel);
         server.setExecutor(Executors.newSingleThreadExecutor());
         server.start();
-        System.out.println("Server started on port 8574");
+        return server;
+    }
+
+    static void stop(HttpServer server) {
+        server.stop(0);
+        ((ExecutorService) server.getExecutor()).shutdownNow();
+    }
+
+    /** Clears all books and counters. Used by the tests to start each one from a clean state. */
+    static void reset() {
+        books.clear();
+        nextId = 1;
+        requestCounter = 0;
     }
 
     // ======================== /books/health ========================
@@ -194,6 +214,14 @@ public class BooksServer {
         } catch (Exception e) {
             send(ex, 400, "Missing or invalid fields in request body");
             return;
+        }
+
+        // Unknown genres are rejected here so every stored book can be found by the genre filter
+        for (String g : genres) {
+            if (!VALID_GENRES.contains(g)) {
+                send(ex, 400, "Invalid genre: " + g);
+                return;
+            }
         }
 
         // Validate — no INFO/DEBUG on error, only ERROR
@@ -432,7 +460,7 @@ public class BooksServer {
 
     // ======================== HELPERS ========================
 
-    private static void validateFilterParams(Map<String, String> params) {
+    static void validateFilterParams(Map<String, String> params) {
         String[] numericKeys = {"price-bigger-than", "price-less-than", "year-bigger-than", "year-less-than"};
         for (String key : numericKeys) {
             if (params.containsKey(key)) {
@@ -504,7 +532,7 @@ public class BooksServer {
         return o;
     }
 
-    private static Map<String, String> parseQuery(String query) {
+    static Map<String, String> parseQuery(String query) {
         Map<String, String> map = new HashMap<>();
         if (query == null || query.isEmpty()) return map;
         for (String pair : query.split("&")) {

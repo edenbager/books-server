@@ -1,5 +1,7 @@
 # books-server
 
+[![CI](https://github.com/edenbager/books-server/actions/workflows/ci.yml/badge.svg)](https://github.com/edenbager/books-server/actions/workflows/ci.yml)
+
 A REST API for managing a book collection, built in Java without a web framework. It supports full CRUD, filtering and request logging, and runs in Docker. Built for my Kaplat course.
 
 **Stack:** Java 17 · `com.sun.net.httpserver` · Gson · Docker
@@ -42,7 +44,7 @@ Validation errors return `409` with `{"errorMessage": "..."}`:
 - year outside 1940-2100
 - price of 0 or less
 
-Invalid JSON or missing fields return `400`.
+Invalid JSON, missing fields or a genre outside the accepted list return `400`.
 
 ### Reading, updating and deleting a book
 
@@ -84,9 +86,17 @@ curl "localhost:8574/logs/level?logger-name=books-logger"
 curl -X PUT "localhost:8574/logs/level?logger-name=books-logger&logger-level=DEBUG"
 ```
 
+## Tests
+
+37 tests (JUnit 4) start the real server on a free port and call it over HTTP. They cover create, read, update and delete, every validation error, filtering and sorting, logger levels, and the query-parsing helpers. They also pin down a bug: an unknown genre used to be accepted on create, and the book could then never be found by the genre filter.
+
+```bash
+mvn test
+```
+
+GitHub Actions runs the tests on every push, then builds the Docker image and checks `/books/health` in the running container.
+
 ## What I'd improve
 
-- **Validate genres on create.** `POST /book` accepts any genre string, but the genre filter only accepts a fixed list, so a book created with an unknown genre can never be found by that filter.
-- **Add automated tests.** I verified behavior by hand with curl. Unit tests for validation and filtering, plus endpoint tests, would catch regressions.
 - **Persist the data.** Books live in memory and disappear on restart.
-- **Split the single file.** All 565 lines are in one class. Separating handlers, filtering and logging would make it easier to read and test.
+- **Split the single file.** All 593 lines are in one class. Separating handlers, filtering and logging would make it easier to read and test.
